@@ -36,7 +36,7 @@ class UI {
         </div>
         <button class="btn add-to-cart" data-id=${item.id}>
         افزودن به سبد خرید  
-          <i class="fas fa-shopping-cart"></i>
+          
       
         </button>
         </div>`;
@@ -111,6 +111,45 @@ class UI {
   cartLogic() {
     //clear cart
     clearCart.addEventListener("click", () => this.clearCart());
+    cartContent.addEventListener("click", (event) => {
+      // console.log(event.target);
+      if (event.target.classList.contains("fa-chevron-up")) {
+        console.log(event.target.dataset.id);
+        const addQuantity = event.target;
+        //get item from cart
+        const addedItem = cart.find((c) => c.id == addQuantity.dataset.id);
+        addedItem.quantity++;
+        //save cart
+        this.setCartValue(cart);
+        //update cart value
+        Storage.saveCart(cart);
+        //update cart item in ui
+        addQuantity.nextElementSibling.innerText = addedItem.quantity;
+      } else if (event.target.classList.contains("fa-trash-alt")) {
+        const removeItem = event.target;
+        const _removeItem = cart.find((c) => c.id == removeItem.dataset.id);
+
+        this.removeItem(_removeItem.id);
+        Storage.saveCart(cart);
+        cartContent.removeChild(removeItem.parentElement);
+      } else if (event.target.classList.contains("fa-chevron-down")) {
+        const addQuantity = event.target;
+        //get item from cart
+        const addedItem = cart.find((c) => c.id == addQuantity.dataset.id);
+        if (addedItem.quantity === 1) {
+          this.removeItem(addedItem.id);
+          cartContent.removeChild(addQuantity.parentElement.parentElement);
+          return;
+        }
+        addedItem.quantity--;
+        //save cart
+        this.setCartValue(cart);
+        //update cart value
+        Storage.saveCart(cart);
+        //update cart item in ui
+        addQuantity.previousElementSibling.innerText = addedItem.quantity;
+      }
+    });
   }
   clearCart() {
     cart.forEach((cItem) => this.removeItem(cItem.id));
